@@ -27,11 +27,11 @@ fn on_oom(_layout: core::alloc::Layout) -> ! {
 fn panic(info: &core::panic::PanicInfo) -> ! {
 	let msg = match info.message() {
 		Some(err) => format!("An error occured: {}", err),
-		None => format!("An error occured!")
+		None => "An error occured!".to_string()
 	};
 	let location = match info.location() {
 		Some(loc) => format!("In file {} at line {} column {}", loc.file(), loc.line(), loc.column()),
-		None => format!(""),
+		None => "".to_string(),
 	};
 	nspire::msg::msg("Error", format!("{}\n{}", msg, location));
 	unsafe { ndless_sys::abort() }
