@@ -52,3 +52,7 @@ unsafe impl GlobalAlloc for CAllocator {
 #[cfg(not(feature = "disable-allocator"))]
 #[global_allocator]
 static A: CAllocator = CAllocator;
+
+#[cfg(not(feature = "disable_ctype_ptr"))]
+#[no_mangle]
+pub static __ctype_ptr__: [u8; 128 + 256] = [0; 128 + 256];
