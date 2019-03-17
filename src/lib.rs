@@ -53,6 +53,24 @@ unsafe impl GlobalAlloc for CAllocator {
 #[global_allocator]
 static A: CAllocator = CAllocator;
 
-#[cfg(not(feature = "disable_ctype_ptr"))]
+#[cfg(not(feature = "disable-ctype-ptr"))]
 #[no_mangle]
 pub static __ctype_ptr__: [u8; 128 + 256] = [0; 128 + 256];
+
+#[cfg(not(feature = "disable-fake-atomics"))]
+#[no_mangle]
+fn __sync_val_compare_and_swap_1(_: *const u8, _: u8, _: u8) -> u8 {
+	unimplemented!()
+}
+
+#[cfg(not(feature = "disable-fake-atomics"))]
+#[no_mangle]
+fn __sync_val_compare_and_swap_2(_: *const u16, _: u16, _: u16) -> u16 {
+	unimplemented!()
+}
+
+#[cfg(not(feature = "disable-fake-atomics"))]
+#[no_mangle]
+fn __sync_val_compare_and_swap_4(_: *const u32, _: u32, _: u32) -> u32 {
+	unimplemented!()
+}
