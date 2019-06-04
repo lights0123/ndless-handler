@@ -1,40 +1,47 @@
 #![no_std]
-#![feature(alloc)]
 #![feature(lang_items)]
 #![feature(alloc_error_handler)]
 #![feature(panic_info_message)]
 extern crate alloc;
 
+use alloc::string::ToString;
 use core::alloc::{GlobalAlloc, Layout};
 
+use alloc::format;
 use cty::c_void;
-use nspire::prelude::*;
 
-#[cfg(not(feature = "disable-eh-personality"))]
+#[cfg(feature = "eh-personality")]
 #[lang = "eh_personality"]
-extern fn eh_personality() {}
+extern "C" fn eh_personality() {}
 
-
-#[cfg(not(feature = "disable-oom-handler"))]
+#[cfg(feature = "oom-handler")]
 #[alloc_error_handler]
 fn on_oom(_layout: core::alloc::Layout) -> ! {
-	unsafe { ndless_sys::abort(); }
+	unsafe {
+		ndless_sys::abort();
+	}
 }
 
-
-#[cfg(not(feature = "disable-panic-handler"))]
+#[cfg(feature = "panic-handler")]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-	let msg = match info.message() {
-		Some(err) => format!("An error occured: {}", err),
-		None => "An error occured!".to_string()
-	};
-	let location = match info.location() {
-		Some(loc) => format!("In file {} at line {} column {}", loc.file(), loc.line(), loc.column()),
-		None => "".to_string(),
-	};
-	nspire::msg::msg("Error", format!("{}\n{}", msg, location));
-	unsafe { ndless_sys::abort() }
+	{
+		let msg = match info.message() {
+			Some(err) => format!("An error occured: {}", err),
+			None => "An error occured!".to_string(),
+		};
+		let location = match info.location() {
+			Some(loc) => format!(
+				"In file {} at line {} column {}",
+				loc.file(),
+				loc.line(),
+				loc.column()
+			),
+			None => "".to_string(),
+		};
+		ndless::msg::msg("Error", &format!("{}\n{}", msg, location));
+	}
+	ndless::process::abort();
 }
 
 /// This allows for dynamic allocation, which calls the C functions `calloc` and `free`.
@@ -49,28 +56,10 @@ unsafe impl GlobalAlloc for CAllocator {
 	}
 }
 
-#[cfg(not(feature = "disable-allocator"))]
+#[cfg(feature = "allocator")]
 #[global_allocator]
 static A: CAllocator = CAllocator;
 
-#[cfg(not(feature = "disable-ctype-ptr"))]
+#[cfg(feature = "ctype-ptr")]
 #[no_mangle]
 pub static __ctype_ptr__: [u8; 128 + 256] = [0; 128 + 256];
-
-#[cfg(not(feature = "disable-fake-atomics"))]
-#[no_mangle]
-fn __sync_val_compare_and_swap_1(_: *const u8, _: u8, _: u8) -> u8 {
-	unimplemented!()
-}
-
-#[cfg(not(feature = "disable-fake-atomics"))]
-#[no_mangle]
-fn __sync_val_compare_and_swap_2(_: *const u16, _: u16, _: u16) -> u16 {
-	unimplemented!()
-}
-
-#[cfg(not(feature = "disable-fake-atomics"))]
-#[no_mangle]
-fn __sync_val_compare_and_swap_4(_: *const u32, _: u32, _: u32) -> u32 {
-	unimplemented!()
-}

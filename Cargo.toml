@@ -3,19 +3,19 @@ name = "ndless-handler"
 description = "Rust handlers for Ndless for TI Nspire"
 repository = "https://github.com/lights0123/ndless-handler"
 license = "MIT OR Apache-2.0"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["lights0123 <developer@lights0123.com>"]
 edition = "2018"
 
 [dependencies]
-nspire = "0.3.0"
-ndless-sys = "0.1.2"
-cty = "0.1.5"
+ndless = "0.8.0"
+ndless-sys = "0.2.0"
+cty = "0.2.0"
 
 [features]
-disable-allocator = []
-disable-oom-handler = []
-disable-panic-handler = []
-disable-eh-personality = []
-disable-ctype-ptr = []
-disable-fake-atomics = []
+default = ["allocator", "oom-handler", "panic-handler", "eh-personality", "ctype-ptr"]
+allocator = []
+oom-handler = []
+panic-handler = []
+eh-personality = []
+ctype-ptr = []
